@@ -149,7 +149,7 @@ def display_information(): #Bring everything together in a formatted table
     ascii_text = pull_friendly_name()
     output = subprocess.run(['figlet', ascii_text], capture_output=True, text=True)
     print(output.stdout)
-    #table.add_column("Art", style="white", justify="right") #Art test
+    
     table.add_column("Info", style="cyan", justify="right") #Create Columns
     table.add_column("Details", style="green")
     
