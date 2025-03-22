@@ -14,14 +14,6 @@ import re
 from rich.console import Console
 from rich.table import Table
 
-LINUX_ASCII = r"""
- _     _                  
-| |   (_)_ __  _   ___  __
-| |   | | '_ \| | | \ \/ /
-| |___| | | | | |_| |>  < 
-|_____|_|_| |_|\__,_/_/\_\
-"""
-
 #create a console
 console = Console()
 
