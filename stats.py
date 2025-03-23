@@ -205,7 +205,10 @@ def display_information(): #Bring everything together in a formatted table
     table.add_column("Details", style="green")
     
     for key, value in info.items(): #Add rows to columnts in proper placement
-        table.add_row(key, str(value))
+        if key == "Battery" and str(value) == "None":
+            pass
+        else:
+            table.add_row(key, str(value))
 
     gpus = pull_gpu_info() #Pull gpu info and add to table (Will work if more than one GPU is installed)
     table.add_row("GPU", "\n".join(gpus))
