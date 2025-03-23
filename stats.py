@@ -140,14 +140,44 @@ def pull_battery_health():
         #Ok lets try reading the capacity directly from /sys/class
         with open(f"{battery_path}/capacity", "r") as f:
             capacity = int(float(f.read().strip())) #Convert to int
-            return f"{capacity}%"
+            
+        with open(f"{battery_path}/status", "r") as f:
+            status = f.read().strip()
+
+        return f"{capacity}% ({status})" #Return formatted battery power and status
     except FileNotFoundError:
         return None #Could not determine battery health at all
+    
+
+def pull_vendor_info(): #Lets find out the brand of the device
+    try: 
+        result = subprocess.run(['hostnamectl', 'status'], capture_output=True, text=True)
+        for line in result.stdout.split("\n"):
+            if "Hardware Vendor:" in line: #look in hostname ctl for Hardware Vendor
+                return line.split(":")[1].strip()
+    except FileNotFoundError:
+        pass
+
+    return None
+
+def pull_model_info(): #Lets find out what device we are dealing with
+    try:
+        result = subprocess.run(["hostnamectl", "status"], capture_output=True, text=True)
+        for line in result.stdout.split("\n"):
+            if "Hardware Model:" in line: #look for Hardware Model in hostnamectl status
+                return line.split(":")[1].strip()
+            
+    except FileNotFoundError:
+        pass
+
+    return None
 
 #Use the above scripts plus platform calls, psutil calls and OS calls
 def pull_system_info():
     return {
         "Hostname": platform.node(),
+        "Hardware Vendor": pull_vendor_info(),
+        "Model": pull_model_info(),
         "Live Interfaces (IP)": pull_active_interfaces(),
         "OS": pull_friendly_name(),
         "OS Version": pull_os_version(),
