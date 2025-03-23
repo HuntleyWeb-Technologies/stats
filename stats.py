@@ -1,4 +1,4 @@
-#! /bin/python
+#! /bin/python3
 
 #Created By Donald Huntley
 #March 21, 2025
@@ -14,8 +14,10 @@ import re
 from rich.console import Console
 from rich.table import Table
 
+
 #create a console
 console = Console()
+
 
 #Pull active interfaces
 def pull_active_interfaces():
