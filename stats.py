@@ -172,12 +172,26 @@ def pull_model_info(): #Lets find out what device we are dealing with
 
     return None
 
+def pull_device_uptime(): #Lets get how long this device has been up
+    try:
+        #User uptime -p to pull format of x Days, x Hours, x Minutes
+        result = subprocess.run(['uptime', '-p'], capture_output=True, text=True)
+        device_up = result.stdout.strip()
+        #Lets remove up from the device_up variable
+        device_up = re.sub(r"^up\s+", "", device_up)
+
+        return device_up
+    except FileNotFoundError:
+        return "uptime command not found"
+        
+
 #Use the above scripts plus platform calls, psutil calls and OS calls
 def pull_system_info():
     return {
         "Hostname": platform.node(),
         "Hardware Vendor": pull_vendor_info(),
         "Model": pull_model_info(),
+        "Uptime": pull_device_uptime(),
         "Live Interfaces (IP)": pull_active_interfaces(),
         "OS": pull_friendly_name(),
         "OS Version": pull_os_version(),
