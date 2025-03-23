@@ -183,7 +183,29 @@ def pull_device_uptime(): #Lets get how long this device has been up
         return device_up
     except FileNotFoundError:
         return "uptime command not found"
+
+def pull_desktop_environment(): #Lets find out what desktop environment the user is using
+    return os.environ.get("XDG_CURRENT_DESKTOP", "Unknown")
+
+def pull_de_version(de): #Create list of DE and command for version
+    de_versions = {
+        "GNOME": ["gnome-shell", "--version"],
+        "KDE": ["plasmashell", "--version"],
+        "XFCE": ["xfce4-session", "--version"],
+        "Cinnamon": ["cinnamon", "--version"],
+        "MATE": ["mate-session", "--version"],
+        "LXQt": ["lxqt-session", "-v"]
+    }
+
+    if de in de_versions: #Let's match them up
+        try:
+            result = subprocess.run(de_versions[de], capture_output=True, text=True)
+            just_version = re.search(r"(\d+(\.\d+)*)", result.stdout)
+            return just_version.group(0) if just_version else "Unknown Version" #Pull out the first line and just the version number
+        except FileNotFoundError:
+            return "Version not found"
         
+    return "Unknown Version"
 
 #Use the above scripts plus platform calls, psutil calls and OS calls
 def pull_system_info():
@@ -195,6 +217,7 @@ def pull_system_info():
         "Live Interfaces (IP)": pull_active_interfaces(),
         "OS": pull_friendly_name(),
         "OS Version": pull_os_version(),
+        "Desktop Environment": pull_desktop_environment() + " " + pull_de_version(pull_desktop_environment()),
         "Kernel": platform.release(),
         "Architecture": platform.machine(),
         "Secure Boot": check_sb(),

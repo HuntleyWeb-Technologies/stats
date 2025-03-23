@@ -19,5 +19,6 @@ Version 0.0.2 -
 -> Added if device doesn't have a battery that will not be put 
    in the output on the screen.
 -> Added system uptime
+-> Added Desktop Environment
 
 
