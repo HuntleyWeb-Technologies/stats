@@ -112,23 +112,7 @@ def pull_memory_info():
     return "\n".join(ram_usage)
 
 
-def pull_system_info():
-    return {
-        "Hostname": platform.node(),
-        "Live Interfaces (IP)": pull_active_interfaces(),
-        "OS": pull_friendly_name(),
-        "OS Version": pull_os_version(),
-        "Kernel": platform.release(),
-        "Architecture": platform.machine(),
-        "Secure Boot": check_sb(),
-        "Disk Usage": pull_disk_usage(),
-        "CPU": pull_cpu_vendor(),
-        "CPU Cores": psutil.cpu_count(logical=False),
-        "Logical CPUs": psutil.cpu_count(logical=True),
-        "RAM": pull_memory_info(),
-        "Shell": os.environ.get("SHELL", "Unknown"),
-    }
-
+#Pull the gpu information from the system
 def pull_gpu_info():
     try:
         result = subprocess.run(['lspci'], capture_output=True, text=True)
@@ -145,6 +129,52 @@ def pull_gpu_info():
         return ["lspci not found"]
     
 
+#If the system has a battery and if it does show it
+def pull_battery_health():
+    #Lets check if the path for the battery exists
+    battery_path = "/sys/class/power_supply/BAT0"
+    if not os.path.exists(battery_path):
+        return None #No battery detched (Probably a Desktop)
+    
+    try:
+        #Lets try and get battery health using upower
+        result = subprocess.run(["upower", "-i", "/org/freedesktop/UPower/devices/battery_BAT0"], capture_output=True, text=True)
+        for line in result.stdout.split("\n"):
+            if "capacity" in line.lower():
+                capacity = int(float(line.split(":")[-1].strip().replace("%", ""))) #convert to int
+                return f"{capacity}%"
+    
+    except FileNotFoundError:
+        pass # upower not found, try another way
+
+    try:
+        #Ok lets try reading the capacity directly from /sys/class
+        with open(f"{battery_path}/capacity", "r") as f:
+            capacity = int(float(f.read().strip())) #Convert to int
+            return f"{capacity}%"
+    except FileNotFoundError:
+        return None #Could not determine battery health at all
+
+#Use the above scripts plus platform calls, psutil calls and OS calls
+def pull_system_info():
+    return {
+        "Hostname": platform.node(),
+        "Live Interfaces (IP)": pull_active_interfaces(),
+        "OS": pull_friendly_name(),
+        "OS Version": pull_os_version(),
+        "Kernel": platform.release(),
+        "Architecture": platform.machine(),
+        "Secure Boot": check_sb(),
+        "Disk Usage": pull_disk_usage(),
+        "CPU": pull_cpu_vendor(),
+        "CPU Cores": psutil.cpu_count(logical=False),
+        "Logical CPUs": psutil.cpu_count(logical=True),
+        "RAM": pull_memory_info(),
+        "Battery": pull_battery_health(),
+        "Shell": os.environ.get("SHELL", "Unknown"),
+    }
+
+#Put everything together and put it out on the screen
 def display_information(): #Bring everything together in a formatted table
     info = pull_system_info()
     table = Table(show_header=False, show_lines=False, box=None)
