@@ -137,17 +137,6 @@ def pull_battery_health():
         return None #No battery detched (Probably a Desktop)
     
     try:
-        #Lets try and get battery health using upower
-        result = subprocess.run(["upower", "-i", "/org/freedesktop/UPower/devices/battery_BAT0"], capture_output=True, text=True)
-        for line in result.stdout.split("\n"):
-            if "capacity" in line.lower():
-                capacity = int(float(line.split(":")[-1].strip().replace("%", ""))) #convert to int
-                return f"{capacity}%"
-    
-    except FileNotFoundError:
-        pass # upower not found, try another way
-
-    try:
         #Ok lets try reading the capacity directly from /sys/class
         with open(f"{battery_path}/capacity", "r") as f:
             capacity = int(float(f.read().strip())) #Convert to int
