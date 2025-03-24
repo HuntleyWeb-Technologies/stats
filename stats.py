@@ -40,7 +40,7 @@ def pull_friendly_name():
     except FileNotFoundError:
         return "Linux (Unknown Distro)"
 
-#Pull OS friendly name
+#Pull OS  name for figlet
 def pull_os_name():
     try:
         with open("/etc/os-release") as f:
