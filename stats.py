@@ -50,17 +50,6 @@ def pull_os_name():
     except FileNotFoundError:
         return "Linux (Unknown Distro)"
     
-""" #Pull OS Version
-def pull_os_version():
-    try:
-        result = subprocess.run(['cat', '/etc/os-release'], capture_output=True, text=True)
-        for line in result.stdout.split("\n"):
-            if line.startswith("VERSION="):
-                return line.split("=")[1].strip().strip('"')
-            
-    except FileNotFoundError:
-        return "Linux (Unknown Version)"
- """
 
 #Pull CPU Vendor information
 def pull_cpu_vendor(): 
