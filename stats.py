@@ -35,13 +35,22 @@ def pull_friendly_name():
     try:
         with open("/etc/os-release") as f:
             for line in f:
-                if line.startswith("NAME="):
+                if line.startswith("PRETTY_NAME="):
                     return line.split("=")[1].strip().strip('"')
     except FileNotFoundError:
         return "Linux (Unknown Distro)"
 
-
-#Pull OS Version
+#Pull OS friendly name
+def pull_os_name():
+    try:
+        with open("/etc/os-release") as f:
+            for line in f:
+                if line.startswith("NAME="):
+                    return line.split("=")[1].strip().strip('"')
+    except FileNotFoundError:
+        return "Linux (Unknown Distro)"
+    
+""" #Pull OS Version
 def pull_os_version():
     try:
         result = subprocess.run(['cat', '/etc/os-release'], capture_output=True, text=True)
@@ -51,7 +60,7 @@ def pull_os_version():
             
     except FileNotFoundError:
         return "Linux (Unknown Version)"
-
+ """
 
 #Pull CPU Vendor information
 def pull_cpu_vendor(): 
@@ -216,7 +225,6 @@ def pull_system_info():
         "Uptime": pull_device_uptime(),
         "Live Interfaces (IP)": pull_active_interfaces(),
         "OS": pull_friendly_name(),
-        "OS Version": pull_os_version(),
         "Desktop Environment": pull_desktop_environment() + " " + pull_de_version(pull_desktop_environment()),
         "Kernel": platform.release(),
         "Architecture": platform.machine(),
@@ -234,7 +242,7 @@ def pull_system_info():
 def display_information(): #Bring everything together in a formatted table
     info = pull_system_info()
     table = Table(show_header=False, show_lines=False, box=None)
-    ascii_text = pull_friendly_name()
+    ascii_text = pull_os_name()
     output = subprocess.run(['figlet', ascii_text], capture_output=True, text=True)
     print(output.stdout)
     
